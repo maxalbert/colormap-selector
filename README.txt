@@ -27,7 +27,7 @@ Dependencies
 Currently the following dependencies are needed. Hopefully some of
 these can be eliminated in the future.
 
-- Vispy
+- Vispy (recent development version > 0.3.0)
 
 - Matplotlib
 
