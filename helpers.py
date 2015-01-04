@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from PyQt4 import QtGui, QtCore
 from vispy import app, scene, gloo
 from vispy.scene.visuals import Line, Mesh, Markers
-from vispy.visuals.transforms import STTransform
 
 
 whitepoint_D65 = np.array([0.9642, 1, 0.8249])
