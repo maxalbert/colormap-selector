@@ -16,7 +16,7 @@ Quick start
 - To quit, press the "Esc" key or close the main GUI window.
 
 Whenever the colormap changes the 3D view on the right shows a linear
-interpolation of the start/end colors in ``CIEL*a*b*`` space. Moreover,
+interpolation of the start/end colors in ``CIELab`` space. Moreover,
 the sample scatterplot (in the separate window) is adjusted to use the
 new colormap.
 
@@ -57,13 +57,13 @@ scientific applications. For details see the references below.
 The most commonly used `RGB color space <http://en.wikipedia.org/wiki/RGB_color_space>`__ is not well suited for
 colormap design. Instead, there are other color spaces which are
 specifically designed to be perceptually linear. One example is the
-`CIEL*a*b* color space <http://en.wikipedia.org/wiki/Lab_color_space>`__ which represents each color using three
+`CIELab color space <http://en.wikipedia.org/wiki/Lab_color_space>`__ which represents each color using three
 the parameters ``L`` (= lightness), ``a`` (= red/green component) and ``b``
 (= yellow/blue component).
 
 This GUI helps defining perceptually linear colormaps. It consists of
 one main window which on the left displays two cross sections through
-``CIEL*a*b*`` space. Each of these corresponds to all those colors with
+``CIELab`` space. Each of these corresponds to all those colors with
 a fixed value of ``L`` (lightness) that are representable in ``RGB`` space.
 The ``L``-value for each cross section can be changed using the slider
 underneath.
