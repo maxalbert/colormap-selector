@@ -35,7 +35,6 @@ these can be eliminated in the future.
 
 - wxpython
 
-`IPython notebook <http://ipython.org/notebook.html>`__
 - FEniCS (see `installation instructions <http://fenicsproject.org/download/>`__); if possible, it is highly
   recommended to use one of the pre-packaged versions, e.g. for Ubuntu.
 
