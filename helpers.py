@@ -269,7 +269,7 @@ def create_quadrilateral_mesh(A, B, C, D):
     return create_mesh(vertices=[A, B, C, D], simplices=[[0, 1, 2], [0, 2, 3]])
 
 
-def cross_section_mesh(mesh_3d, mesh_2d):
+def cross_section_triangulation_from_meshes(mesh_3d, mesh_2d):
     """
     Given a tetrahedral mesh `mesh_3d` and a triangular mesh `mesh_2d`
     (which must be embedded in 3-space), compute a triangulation of
@@ -309,7 +309,7 @@ def cross_section_mesh(mesh_3d, mesh_2d):
 
 class CrossSection(object):
     def __init__(self, mesh_3d, mesh_2d):
-        self.vertices, self.simplices = cross_section_mesh(mesh_3d, mesh_2d)
+        self.vertices, self.simplices = cross_section_triangulation_from_meshes(mesh_3d, mesh_2d)
         #self.vertices = np.asarray(vertices, dtype=float)
         #self.simplices = np.asarray(simplices, dtype=np.uintp)
         self.compute_2d_representation()
@@ -468,7 +468,7 @@ class CrossSectionL(CrossSection):
         C = [L, amax, bmax]
         D = [L, amin, bmax]
         mesh_square = create_quadrilateral_mesh(A, B, C, D)
-        self.vertices, self.simplices = cross_section_mesh(self.mesh_3d, mesh_square)
+        self.vertices, self.simplices = cross_section_triangulation_from_meshes(self.mesh_3d, mesh_square)
         self.compute_2d_representation()
 
     def compute_2d_representation(self):
