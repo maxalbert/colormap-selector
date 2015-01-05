@@ -57,7 +57,7 @@ def xyz2lab(xyz, whitepoint=whitepoint_D65):
     a = 500. * (f(X/Xw) - f(Y/Yw))
     b = 200. * (f(Y/Yw) - f(Z/Zw))
 
-    return L, a, b
+    return np.array([L, a, b], dtype=float)
 
 
 def lab2xyz(lab, whitepoint=whitepoint_D65):
@@ -305,6 +305,63 @@ def cross_section_triangulation_from_meshes(mesh_3d, mesh_2d):
     tri = Delaunay(pts_2d)
 
     return pts_intersection, tri.simplices
+
+
+class Plane(object):
+    def __init__(self, P, n):
+        """
+        Initialise plane from a point `P` and a normal vector `n`.
+
+        """
+        self.P = np.asarray(P, dtype=float)
+        self.n = np.asarray(n, dtype=float)
+
+    def same_side(self, P1, P2):
+        """
+        Return `True` if the points `P1` and `P2` lie on the same side
+        of the plane, otherwise return `False`. If one of the points
+        lies exactly in the plane then `False` is returned.
+
+        """
+        a = np.dot(self.n, self.P - P1)
+        b = np.dot(self.n, self.P - P2)
+        return (a * b > 0)
+
+
+def compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=rgb2lab, TOL=1e-4):
+    """
+    Given two points `P1`, `P2` in RGB space and a transformation
+    function `fun` (e.g. from RGB space to CIELab space), find the
+    intersection of the curve which is the image of the line segment
+    `P1`, `P2` under `fun` with a given plane in the image space.
+
+    """
+    P1 = np.asarray(P1, dtype=float)
+    P2 = np.asarray(P2, dtype=float)
+
+    Q1 = fun(P1)
+    Q2 = fun(P2)
+
+    # If the image points are close enough, we are done
+    if np.linalg.norm(Q1 - Q2) < TOL:
+        return 0.5 * (Q1 + Q2)
+
+    # If the image points lie on the same side of the plane, we assume
+    # that there is no intersection (this will not be true for some
+    # positions of cross section planes through CIELab space, but is a
+    # good assumption for most cases of interest to us).
+    if plane.same_side(Q1, Q2):
+        raise NoIntersectionError()
+
+    P3 = 0.5 * (P1 + P2)
+    Q3 = fun(P3)
+
+    if plane.same_side(Q2, Q3):
+        return compute_intersection_of_image_curve_with_plane(P1, P3, plane, fun=fun, TOL=TOL)
+    elif plane.same_side(Q1, Q3):
+        return compute_intersection_of_image_curve_with_plane(P3, P2, plane, fun=fun, TOL=TOL)
+    else:
+        raise RuntimeError("This should not happen!")
 
 
 class CrossSection(object):
