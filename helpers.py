@@ -1,5 +1,4 @@
 import numpy as np
-import dolfin as df
 import matplotlib.colors as mcolors
 from scipy.spatial import Delaunay
 import sys
@@ -416,8 +415,8 @@ def compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=rgb2lab, T
 
 
 class CrossSection(object):
-    def __init__(self, mesh_3d, mesh_2d):
-        self.vertices, self.simplices = cross_section_triangulation_from_meshes(mesh_3d, mesh_2d)
+    def __init__(self, plane):
+        self.vertices, self.simplices = cross_section_triangulation(plane, N=5)
         #self.vertices = np.asarray(vertices, dtype=float)
         #self.simplices = np.asarray(simplices, dtype=np.uintp)
         self.compute_2d_representation()
@@ -562,21 +561,13 @@ class CrossSection(object):
 
 
 class CrossSectionL(CrossSection):
-    def __init__(self, mesh_3d, L):
-        self.mesh_3d = mesh_3d
+    def __init__(self, L):
         self.set_L(L)
 
     def set_L(self, L):
         self.L = L
-        coords = self.mesh_3d.coordinates()
-        amin, amax = coords[:, 1].min(), coords[:, 1].max()
-        bmin, bmax = coords[:, 2].min(), coords[:, 2].max()
-        A = [L, amin, bmin]
-        B = [L, amax, bmin]
-        C = [L, amax, bmax]
-        D = [L, amin, bmax]
-        mesh_square = create_quadrilateral_mesh(A, B, C, D)
-        self.vertices, self.simplices = cross_section_triangulation_from_meshes(self.mesh_3d, mesh_square)
+        self.plane = Plane([L, 0, 0], n=[1, 0, 0])
+        self.vertices, self.simplices = cross_section_triangulation(self.plane, N=5)
         self.compute_2d_representation()
 
     def compute_2d_representation(self):
@@ -890,10 +881,6 @@ class CrossSectionDisplay3D(object):
 
 
 class ColormapSelector(QtGui.QMainWindow):
-    N = 7
-    mesh_rgb = df.UnitCubeMesh(N, N, N)
-    mesh_lab = transform_mesh(mesh_rgb, rgb2lab)
-
     def __init__(self, sample_plot_functions):
         QtGui.QMainWindow.__init__(self)
 
@@ -902,9 +889,9 @@ class ColormapSelector(QtGui.QMainWindow):
 
         self.sample_plot_functions = sample_plot_functions
 
-        cs1 = CrossSectionL(self.mesh_lab, 40)
-        #cs2 = CrossSectionL(self.mesh_lab, 60)
-        cs2 = CrossSectionL(self.mesh_lab, 90)
+        cs1 = CrossSectionL(40)
+        #cs2 = CrossSectionL(60)
+        cs2 = CrossSectionL(90)
 
         # Central Widget
         self.splitter_h = QtGui.QSplitter(QtCore.Qt.Horizontal)
