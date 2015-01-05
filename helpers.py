@@ -3,6 +3,7 @@ import dolfin as df
 import matplotlib.colors as mcolors
 from scipy.spatial import Delaunay
 import sys
+import itertools
 import matplotlib.pyplot as plt
 from PyQt4 import QtGui, QtCore
 from vispy import app, scene, gloo
@@ -20,6 +21,11 @@ A_rgb2xyz = np.linalg.inv(A_xyz2rgb)
 
 
 class RGBRangeError(Exception):
+    pass
+
+
+class NoIntersectionError(Exception):
+    # Used when computing intersections of line segments with a plane.
     pass
 
 
@@ -307,6 +313,51 @@ def cross_section_triangulation_from_meshes(mesh_3d, mesh_2d):
     return pts_intersection, tri.simplices
 
 
+def cross_section_triangulation(plane, N=5, fun=rgb2lab):
+    """
+    Compute a triangulation of the cross section defined by `plane`.
+
+    This works by subdividing the RGB cube into line segments parallel
+    to each coordinate axis, transforming these line segments using
+    the functon `fun` and computing the intersections of the resulting
+    curves with `plane`. The argument `N` specifies the number of
+    subdivisions of each edge of the RGB cube.
+
+    """
+    # Compute the intersections of the images in CIELab space of a
+    # bunch of line segments parallel to the coordinate axes with the
+    # cross section plane.
+    pts_intersection = []
+
+    vals = np.linspace(0., 1., N)
+
+    def add_intersection_point(P1, P2):
+        try:
+            Q = compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=fun)
+            pts_intersection.append(Q)
+        except NoIntersectionError:
+            pass
+
+    for a, b in itertools.product(vals, vals):
+        add_intersection_point([a, b, 0.], [a, b, 1.])
+        add_intersection_point([a, 0., b], [a, 1., b])
+        add_intersection_point([0., a, b], [1., a, b])
+
+    pts_intersection = np.array(pts_intersection)
+
+    # The points are coplanar but the plane they lie in has general
+    # position in space. Here we rotate the points so that one
+    # coordinate is constant and drop this coordinate. This allows us
+    # to determine a 2D Delaunay triangulation of the point cloud
+    # below.
+    pts_2d, _, _, _ = find_planar_coordinates(pts_intersection)
+
+    # Compute Delaunay triangulation of the now 2D point set
+    tri = Delaunay(pts_2d)
+
+    return pts_intersection, tri.simplices
+
+
 class Plane(object):
     def __init__(self, P, n):
         """
@@ -328,7 +379,7 @@ class Plane(object):
         return (a * b > 0)
 
 
-def compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=rgb2lab, TOL=1e-4):
+def compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=rgb2lab, TOL=1e-6):
     """
     Given two points `P1`, `P2` in RGB space and a transformation
     function `fun` (e.g. from RGB space to CIELab space), find the
