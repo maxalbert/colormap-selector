@@ -131,37 +131,6 @@ def linear_colormap(pt1, pt2, coordspace='RGB'):
     return cmap
 
 
-def transform_mesh(mesh, f):
-    """
-    Return a new mesh where the vertex coordinates have been
-    transformed with the function `f`.
-
-    """
-    editor = df.MeshEditor()
-    mesh_new = df.Mesh()
-    editor.open(mesh_new, mesh.topology().dim(), mesh.geometry().dim())  # top. and geom. dimension are both 3
-    editor.init_vertices(mesh.num_vertices())
-    editor.init_cells(mesh.num_cells())
-    for i, pt in enumerate(mesh.coordinates()):
-        editor.add_vertex(i, np.array(f(pt)))
-    for i, c in enumerate(mesh.cells()):
-        editor.add_cell(i, np.array(c, dtype=np.uintp))
-    editor.close()
-    return mesh_new
-
-
-def uniqify(seq):
-    """
-    Return a copy of the sequence `seq` with duplicate elements removed.
-    This is the function 'f7' from [1].
-
-    [1] http://www.peterbe.com/plog/uniqifiers-benchmark
-    """
-    seen = set()
-    seen_add = seen.add
-    return [ x for x in seq if not (x in seen or seen_add(x))]
-
-
 def rotation_matrix(axis, theta):
     """
     Return the rotation matrix associated with counterclockwise rotation
@@ -237,79 +206,6 @@ def find_planar_coordinates(pts):
     pts_2d = pts_rotated[:, indices]
 
     return pts_2d, idx, c0, R
-
-
-def create_mesh(vertices, simplices):
-    vertices = np.asarray(vertices, dtype=float)
-    simplices = np.asarray(simplices, dtype=np.uintp)
-    assert vertices.ndim == 2
-    assert simplices.ndim == 2
-
-    top_dim = simplices.shape[1] - 1  # topological dimension of the mesh
-    _, geom_dim = vertices.shape  # geometrical dimension of the mesh
-
-    # Create a mesh from the points in 3D space by using the
-    # connectivity information from the Delaunay triangulation.
-    editor = df.MeshEditor()
-    mesh = df.Mesh()
-    editor.open(mesh, top_dim, geom_dim)
-    editor.init_vertices(len(vertices))
-    editor.init_cells(len(simplices))
-    for i, pt in enumerate(vertices):
-        editor.add_vertex(i, pt)
-    for i, c in enumerate(simplices):
-        editor.add_cell(i, c)
-    editor.close()
-
-    return mesh
-
-
-def create_quadrilateral_mesh(A, B, C, D):
-    """
-    Create a mesh consisting of two triangles connecting the four given points.
-    The two triangles are [A, B, C] and [A, C, D], thus the points must be
-    given in the correct order to create a full quadrilateral (rather than two
-    overlapping triangles).
-    """
-    return create_mesh(vertices=[A, B, C, D], simplices=[[0, 1, 2], [0, 2, 3]])
-
-
-def cross_section_triangulation_from_meshes(mesh_3d, mesh_2d):
-    """
-    Given a tetrahedral mesh `mesh_3d` and a triangular mesh `mesh_2d`
-    (which must be embedded in 3-space), compute a triangulation of
-    the cross section between the two meshes.
-
-    Known limitations: Currently the triangular mesh is required to be planar.
-
-    """
-    cells = [c for c in df.cells(mesh_3d)]
-
-    # Compute the intersections of each triangle in the 2d mesh with
-    # all cells in the 3d mesh.
-    pts_intersection = []
-    triangles = [c for c in df.cells(mesh_2d)]
-    for triangle in triangles:
-        # Determine a unique list of pointer of intersection between
-        # the triangle and the mesh edges.
-        pts_cur = [c.triangulate_intersection(triangle).reshape(-1, 3) for c in cells]
-        pts_cur = [pt for pt in pts_cur if pt.size != 0]
-        if pts_cur != []:
-            pts_intersection.append(np.concatenate(pts_cur))
-    pts_intersection = np.concatenate(pts_intersection)
-    pts_intersection = np.array(uniqify([tuple(pt) for pt in pts_intersection]))
-
-    # The points are coplanar but the plane they lie in has general
-    # position in space. Here we rotate the points so that one
-    # coordinate is constant and drop this coordinate. This allows us
-    # tod determine a 2D Delaunay trian- gulation of the point cloud
-    # below.
-    pts_2d, _, _, _ = find_planar_coordinates(pts_intersection)
-
-    # Compute Delaunay triangulation of the now 2D point set
-    tri = Delaunay(pts_2d)
-
-    return pts_intersection, tri.simplices
 
 
 def cross_section_triangulation(plane, N=5, fun=rgb2lab):
