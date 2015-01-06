@@ -25,8 +25,7 @@ use the new colormap.
 Dependencies
 ============
 
-Currently the following dependencies are needed. Hopefully some of
-these can be eliminated in the future.
+Currently the following dependencies are needed.
 
 - Vispy (recent development version > 0.3.0)
 
@@ -35,11 +34,6 @@ these can be eliminated in the future.
 - PyQt
 
 - wxpython
-
-- FEniCS (see `installation instructions
-  <http://fenicsproject.org/download/>`__); if possible, it is highly
-  recommended to use one of the pre-packaged versions, e.g. for
-  Ubuntu.
 
 
 Background Info
