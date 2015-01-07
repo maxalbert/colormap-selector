@@ -175,9 +175,27 @@ def find_planar_coordinates(pts):
     assert pts.ndim == 2
     assert pts.shape[1] == 3
 
-    # Find a normal vector 'v' of the plane in which the points lie
-    P1, P2, P3 = pts[:3]
-    v = np.cross(P2-P1, P3-P1)
+    def find_distinct_points(pts, TOL):
+        N = len(pts)
+        for idx1 in xrange(N):
+            P1 = pts[idx1]
+            for idx2 in xrange(idx1+1, N):
+                P2 = pts[idx2]
+                if np.linalg.norm(P2 - P1) < TOL:
+                    continue
+
+                for idx3 in xrange(idx1+1, N):
+                    P3 = pts[idx3]
+                    if np.linalg.norm(P3 - P1) > TOL and np.linalg.norm(P3 - P2) > TOL:
+                        return P1, P2, P3
+
+    def find_normal_vector(pts, TOL):
+        P1, P2, P3 = find_distinct_points(pts, TOL)
+        v = np.cross(P2-P1, P3-P1)
+        assert np.linalg.norm(v) > TOL
+        return v
+
+    v = find_normal_vector(pts, TOL=1e-3)
 
     # Find the coordinate axis `w` which has the largest possible angle
     # with respect to v. This is the axis whose dot product with v is
@@ -198,7 +216,7 @@ def find_planar_coordinates(pts):
     # Verify that the idx-coordinate is constant
     const_coords = pts_rotated[:, idx]
     c0 = const_coords[0]
-    if not np.allclose(const_coords, c0):
+    if not all(np.absolute(const_coords - c0) < 1e-4):
         raise RuntimeError("The given points are not coplanar!")
 
     # Drop the idx-column from the point coordinates
