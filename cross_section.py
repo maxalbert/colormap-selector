@@ -152,9 +152,14 @@ class CrossSection(object):
 
 class CrossSectionL(CrossSection):
     def __init__(self, L):
-        self.L = L
         super(CrossSectionL, self).__init__(Plane([L, 0, 0], n=[1, 0, 0]))
+        self._L = L
 
-    def set_L(self, L):
-        self.L = L
-        self.set_plane(Plane([L, 0, 0], n=[1, 0, 0]))
+    @property
+    def L(self):
+        return self._L
+
+    @L.setter
+    def L(self, value):
+        self._L = value
+        self.set_plane(Plane([value, 0, 0], n=[1, 0, 0]))
