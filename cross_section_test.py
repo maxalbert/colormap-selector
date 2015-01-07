@@ -14,3 +14,12 @@ def test_init_cross_section():
     assert isinstance(cs.vertices_2d, np.ndarray)
     assert isinstance(cs.faces, np.ndarray)
     assert isinstance(cs.mapping_3d_to_2d, Mapping3Dto2D)
+
+
+def test_init_cross_section_L():
+    cs = CrossSectionL(L=40)
+    assert cs.L == 40
+    assert isinstance(cs.vertices_3d, np.ndarray)
+    assert isinstance(cs.vertices_2d, np.ndarray)
+    assert isinstance(cs.faces, np.ndarray)
+    assert isinstance(cs.mapping_3d_to_2d, Mapping3Dto2D)

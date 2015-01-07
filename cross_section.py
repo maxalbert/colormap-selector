@@ -79,15 +79,15 @@ class CrossSection(object):
         }
 
     def __init__(self, plane, color_space='CIELab'):
-        self.plane = plane
         self.vertices_3d = None
         self.vertices_2d = None
         self.faces = None
-        self._color_space = None
-
-        # Initialise data
-        self.mapping_3d_to_2d = Mapping3Dto2D(self.plane)
         self.color_space = color_space
+        self.set_plane(plane)
+
+    def set_plane(self, plane):
+        self.plane = plane
+        self.mapping_3d_to_2d = Mapping3Dto2D(self.plane)
         self.compute_triangulation()
 
     @property
@@ -148,3 +148,13 @@ class CrossSection(object):
         # Compute Delaunay triangulation of the now 2D point set
         tri = Delaunay(self.vertices_2d)
         self.faces = tri.simplices
+
+
+class CrossSectionL(CrossSection):
+    def __init__(self, L):
+        self.L = L
+        super(CrossSectionL, self).__init__(Plane([L, 0, 0], n=[1, 0, 0]))
+
+    def set_L(self, L):
+        self.L = L
+        self.set_plane(Plane([L, 0, 0], n=[1, 0, 0]))
