@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
 from scipy.spatial import Delaunay
-from color_transformations import rgb2lab
+from color_transformations import rgb2lab, lab2rgb
 from mapping_3d_to_2d import Mapping3Dto2D
 
 
@@ -81,6 +81,7 @@ class CrossSection(object):
     def __init__(self, plane, color_space='CIELab'):
         self.vertices_3d = None
         self.vertices_2d = None
+        self.vertex_colors = None
         self.faces = None
         self.color_space = color_space
         self.set_plane(plane)
@@ -148,6 +149,11 @@ class CrossSection(object):
         # Compute Delaunay triangulation of the now 2D point set
         tri = Delaunay(self.vertices_2d)
         self.faces = tri.simplices
+
+        # Compute vertex colors (RGBA)
+        self.vertex_colors = np.empty((len(self.vertices_3d), 4))
+        self.vertex_colors[:, 0:3] = np.array([lab2rgb(pt) for pt in self.vertices_3d])
+        self.vertex_colors[:, 3] = 0.7  # alpha value != 1 for slight transparency
 
 
 class CrossSectionL(CrossSection):

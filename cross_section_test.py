@@ -13,6 +13,7 @@ def test_init_cross_section():
     assert isinstance(cs.vertices_3d, np.ndarray)
     assert np.allclose(cs.vertices_3d[:, 0], 50)
     assert isinstance(cs.vertices_2d, np.ndarray)
+    assert isinstance(cs.vertex_colors, np.ndarray)
     assert isinstance(cs.faces, np.ndarray)
     assert isinstance(cs.mapping_3d_to_2d, Mapping3Dto2D)
 
@@ -24,5 +25,6 @@ def test_init_cross_section_L():
     assert isinstance(cs.vertices_3d, np.ndarray)
     assert np.allclose(cs.vertices_3d[:, 0], 10)
     assert isinstance(cs.vertices_2d, np.ndarray)
+    assert isinstance(cs.vertex_colors, np.ndarray)
     assert isinstance(cs.faces, np.ndarray)
     assert isinstance(cs.mapping_3d_to_2d, Mapping3Dto2D)
