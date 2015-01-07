@@ -224,8 +224,6 @@ def cross_section_triangulation(plane, N=5, fun=rgb2lab):
     # cross section plane.
     pts_intersection = []
 
-    vals = np.linspace(0., 1., N)
-
     def add_intersection_point(P1, P2):
         try:
             Q = compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=fun)
@@ -233,6 +231,7 @@ def cross_section_triangulation(plane, N=5, fun=rgb2lab):
         except NoIntersectionError:
             pass
 
+    vals = np.linspace(0., 1., N)
     for a, b in itertools.product(vals, vals):
         add_intersection_point([a, b, 0.], [a, b, 1.])
         add_intersection_point([a, 0., b], [a, 1., b])
