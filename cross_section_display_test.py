@@ -34,6 +34,9 @@ def test_init_cross_section_display_3d():
     win.csd.add_cross_section(cs3)
     win.csd.add_cross_section(cs4)
 
+    win.csd.start_color = [40, 70, -100]
+    win.csd.end_color = [80, -15, 70]
+
     # Here we change L *after* the cross section has been added to the
     # CrossSectionDisplay. This is to check that redraw() takes this
     # change into account.

@@ -86,3 +86,11 @@ def rgb2lab(rgb, whitepoint=whitepoint_D65):
 
 def lab2rgb(lab, whitepoint=whitepoint_D65, assert_valid=False, clip=False):
     return xyz2rgb(lab2xyz(lab, whitepoint=whitepoint), assert_valid=assert_valid, clip=clip)
+
+
+def rgb2rgba(rgb):
+    r, g, b = rgb
+    return np.array([r, g, b, 1.])
+
+def lab2rgba(lab, whitepoint=whitepoint_D65, assert_valid=False, clip=False):
+    return rgb2rgba(lab2rgb(lab, whitepoint=whitepoint, assert_valid=assert_valid, clip=clip))
