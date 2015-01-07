@@ -1,6 +1,6 @@
 import sys
 from PyQt4 import QtGui, QtCore
-from cross_section import CrossSectionL
+from cross_section import CrossSection, CrossSectionL, Plane
 from cross_section_display import *
 
 
@@ -27,10 +27,12 @@ def test_init_cross_section_display_3d():
     cs1 = CrossSectionL(L=10)
     cs2 = CrossSectionL(L=60)
     cs3 = CrossSectionL(L=80)
+    cs4 = CrossSection(Plane(P=[50, 0, 0], n=[2, 4, -3]))
 
     win.csd.add_cross_section(cs1)
     win.csd.add_cross_section(cs2)
     win.csd.add_cross_section(cs3)
+    win.csd.add_cross_section(cs4)
 
     # Here we change L *after* the cross section has been added to the
     # CrossSectionDisplay. This is to check that redraw() takes this
