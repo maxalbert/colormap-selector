@@ -1,7 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from vispy import scene
 from vispy.scene.visuals import Mesh, Line, Markers
-from color_transformations import lab2rgb, lab2rgba
+from color_transformations import lab2rgb, lab2rgba, RGBRangeError
 from cross_section import CrossSectionL
 import numpy as np
 
@@ -29,6 +29,7 @@ class CrossSectionDisplay2D(object):
         self.canvas = scene.SceneCanvas(keys='interactive', bgcolor='white')
         self.view = self.canvas.central_widget.add_view()
         self.view.camera.rect = (-110, -140), (230, 230)
+        self.view.on_mouse_press = self.on_mouse_press
 
         self.color_label_prefix = color_label_prefix
         self.selected_color = None
@@ -69,6 +70,44 @@ class CrossSectionDisplay2D(object):
         self.color_value_label.setText(
             "{}{}".format(self.color_label_prefix, label_text))
 
+    def transform_event_to_color_coordinates(self, pos):
+        # Event position (where the mouse click occurred, relative to the sub-plot window)
+        x, y = pos
+
+        # Minimum/maximum coordinates of the sub-plot
+        xmin, ymin = self.view.pos
+        xmax = xmin + self.view.rect.width
+        ymax = ymin + self.view.rect.height
+
+        # Normalised event coordinates (betwen 0 and 1). We need to
+        # flip the y-coordinate because event coordinates run from top
+        # to bottom but we need them to run from bottom to top.
+        xn = x / (xmax - xmin)
+        yn = (ymax - ymin - y) / (ymax - ymin)
+
+        # Transform the normalised event coordinates into camera
+        # coordinates (which are the "true" 2D coordinates that this
+        # event corresponds to).
+        pt_2d = (np.array(self.view.camera.rect.pos) +
+                 np.array(self.view.camera.rect.size) * np.array([xn, yn]))
+
+        return pt_2d
+
+    def on_mouse_press(self, event):
+        if event.button == 2:
+            pt_2d = self.transform_event_to_color_coordinates(event.pos[:2])
+            pt_lab = self.cross_section.mapping_3d_to_2d.apply_inv(pt_2d)
+
+            try:
+                _ = lab2rgb(pt_lab, assert_valid=True)
+            except RGBRangeError:
+                # Do not adjust the line if the clicked point lies outside
+                # the values which can be represented in RGB.
+                return
+
+            self.selected_color = pt_lab
+            self.redraw()
+
 
 class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
     def __init__(self, L, color_label_prefix=""):
@@ -87,6 +126,7 @@ class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
         self.sliderlabel.slider.setValue(L)
         self.sliderlabel.label.setText("L={}".format(L))
         self.redraw()
+
 
 class ColoredLine3D(object):
     def __init__(self, parent):
