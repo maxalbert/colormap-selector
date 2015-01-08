@@ -78,7 +78,7 @@ class Mapping3Dto2D(object):
             pts_3d.shape = (1, len(pts_3d))
         assert pts_3d.ndim == 2 and pts_3d.shape[1] == 3
 
-        pts_2d = np.dot(self.mat, pts_3d.T).T
+        pts_2d = np.dot(pts_3d, self.mat.T)
 
         if orig_ndim == 1:
             pts_2d.shape = (2,)
@@ -104,7 +104,7 @@ class Mapping3Dto2D(object):
         pts_2d_embedded[:, self.idcs_nonconst] = pts_2d
         pts_2d_embedded[:, self.idx_const] = self.const_coord
 
-        pts_3d = np.dot(self.mat_inv, pts_2d_embedded.T).T
+        pts_3d = np.dot(pts_2d_embedded, self.mat_inv.T)
 
         if orig_ndim == 1:
             pts_3d.shape = (3,)
