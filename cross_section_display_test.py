@@ -1,5 +1,6 @@
 import sys
 from PyQt4 import QtGui, QtCore
+from sample_plots import sample_scatterplot
 from cross_section import CrossSection, CrossSectionL, Plane
 from cross_section_display import *
 
@@ -57,7 +58,7 @@ def test_init_cross_section_display_2d_const_L():
 
 def test_colormap_selector_GUI():
     appQt = QtGui.QApplication(sys.argv)
-    win = ColormapSelector()
+    win = ColormapSelector(sample_plot_functions=[sample_scatterplot])
     win.show()
     appQt.exec_()
 

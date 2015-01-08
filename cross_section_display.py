@@ -1,10 +1,13 @@
+import matplotlib
+matplotlib.use('wx')
+import matplotlib.pyplot as plt
+import numbers
+import numpy as np
 from PyQt4 import QtGui, QtCore
 from vispy import scene
 from vispy.scene.visuals import Mesh, Line, Markers
-from color_transformations import lab2rgb, lab2rgba, RGBRangeError
+from color_transformations import lab2rgb, lab2rgba, RGBRangeError, linear_colormap
 from cross_section import CrossSectionL
-import numbers
-import numpy as np
 
 
 class SliderWithLabel(QtGui.QWidget):
@@ -257,11 +260,13 @@ class CrossSectionDisplay3D(object):
 
 
 class ColormapSelector(QtGui.QMainWindow):
-    def __init__(self):
+    def __init__(self, sample_plot_functions):
         QtGui.QMainWindow.__init__(self)
 
         self.resize(700, 500)
         self.setWindowTitle('Colormap Selector')
+
+        self.sample_plot_functions = sample_plot_functions
 
         cs1 = CrossSectionL(40)
         cs2 = CrossSectionL(90)
@@ -286,12 +291,44 @@ class ColormapSelector(QtGui.QMainWindow):
 
         self.cs_display_2d_L1.add_callback_right_click(self.set_start_color)
         self.cs_display_2d_L2.add_callback_right_click(self.set_end_color)
+        self.cs_display_2d_L1.add_callback_right_click(self.update_matplotlib_plots)
+        self.cs_display_2d_L2.add_callback_right_click(self.update_matplotlib_plots)
         self.cs_display_2d_L1.add_callback_slider_value_changed(self.cs_display_3d.redraw)
         self.cs_display_2d_L2.add_callback_slider_value_changed(self.cs_display_3d.redraw)
 
+        self.create_matplotlib_sample_figures()
+
+    def create_matplotlib_sample_figures(self):
+        """
+        Create one matplotlib figure windows for each sample plot.
+        """
+        self.sample_plots = {}
+
+        for f in self.sample_plot_functions:
+            fig = plt.figure()
+            ax = fig.gca()
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            self.sample_plots[f] = fig
+        plt.show(block=False)
+        self.update_matplotlib_plots()
+
+    def update_matplotlib_plots(self, *args):
+        for f in self.sample_plot_functions:
+            fig = self.sample_plots[f]
+            fig.clf()
+            cmap = linear_colormap(self.cs_display_2d_L1.selected_color,
+                                   self.cs_display_2d_L2.selected_color,
+                                   coordspace='Lab')
+            im = f(fig.gca(), cmap)
+            cbar = fig.colorbar(im, drawedges=False)
+            cbar.solids.set_edgecolor("face")
+            fig.canvas.draw()
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
-            self.close()
+            plt.close('all')  # close all matplotlib windows
+            self.close()      # close the main GUI window
 
     def set_start_color(self, event):
         self.cs_display_3d.start_color = self.cs_display_2d_L1.selected_color

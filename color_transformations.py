@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.colors as mcolors
 
 whitepoint_D65 = np.array([0.9642, 1, 0.8249])
 
@@ -94,3 +95,32 @@ def rgb2rgba(rgb):
 
 def lab2rgba(lab, whitepoint=whitepoint_D65, assert_valid=False, clip=False):
     return rgb2rgba(lab2rgb(lab, whitepoint=whitepoint, assert_valid=assert_valid, clip=clip))
+
+
+def linear_colormap(pt1, pt2, coordspace='RGB'):
+    """
+    Define a perceptually linear colormap defined through a line in the
+    CIELab [1] color space. The line is defined by its endpoints `pt1`,
+    `pt2`. The argument `coordspace` can be either `RGB` (the default)
+    or `lab` and specifies whether the coordinates of `pt1`, `pt2` are
+    given in RGB or Lab coordinates.
+
+    [1] http://dba.med.sc.edu/price/irf/Adobe_tg/models/cielab.html
+
+    """
+    if coordspace == 'RGB':
+        pt1 = np.array(rgb2lab(pt1))
+        pt2 = np.array(rgb2lab(pt2))
+    elif coordspace == 'Lab':
+        pt1 = np.array(pt1)
+        pt2 = np.array(pt2)
+    else:
+        raise ValueError("Argument 'coordspace' must be either 'RGB' "
+                         "or 'Lab'. Got: {}".format(coordspace))
+
+    tvals = np.linspace(0, 1, 256)
+    path_vals = np.array([(1-t) * pt1 + t * pt2 for t in tvals])
+    cmap_vals = np.array([lab2rgb(pt) for pt in path_vals])
+    #print np.where(cmap_vals < 0)
+    cmap = mcolors.ListedColormap(cmap_vals)
+    return cmap
