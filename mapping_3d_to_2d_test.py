@@ -18,7 +18,9 @@ def test_initialise_mapping_3d_to_2d_simple():
     # Check the 2d -> 3d transformation
     assert np.allclose(f1.apply_inv([-1, 4]), [50, -1, 4])
     assert np.allclose(f1.apply_inv([3, 7]), [50, 3, 7])
-
+    assert f1.apply_inv([-1, 4]).ndim == 1
+    assert f1.apply_inv([[-1, 4]]).ndim == 2
+    assert np.allclose(f1.apply_inv([[-1, 4], [3, 7]]), [[50, -1, 4], [50, 3, 7]])
 
     plane2 = Plane([0, 30, 0], n=[0, 1, 0])
     f2 = Mapping3Dto2D(plane2)

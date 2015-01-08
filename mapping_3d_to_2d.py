@@ -71,6 +71,7 @@ class Mapping3Dto2D(object):
         *Arguments*
         """
         pts_3d = np.asarray(pts_3d, dtype=float)
+        orig_ndim = pts_3d.ndim
 
         # Ensure that `pts_3d` is a list of 3D points
         if pts_3d.ndim == 1:
@@ -78,6 +79,9 @@ class Mapping3Dto2D(object):
         assert pts_3d.ndim == 2 and pts_3d.shape[1] == 3
 
         pts_2d = np.dot(self.mat, pts_3d.T).T
+
+        if orig_ndim == 1:
+            pts_2d.shape = (2,)
 
         return pts_2d
 
@@ -88,6 +92,7 @@ class Mapping3Dto2D(object):
         *Arguments*
         """
         pts_2d = np.asarray(pts_2d, dtype=float)
+        orig_ndim = pts_2d.ndim
 
         # Ensure that `pts` is a list of 3D points
         if pts_2d.ndim == 1:
@@ -99,5 +104,8 @@ class Mapping3Dto2D(object):
         pts_2d_embedded[:, self.idx_const] = self.const_coord
 
         pts_3d = np.dot(self.mat_inv, pts_2d_embedded.T).T
+
+        if orig_ndim == 1:
+            pts_3d.shape = (3,)
 
         return pts_3d
