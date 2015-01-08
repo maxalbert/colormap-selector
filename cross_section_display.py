@@ -1,5 +1,3 @@
-import matplotlib
-matplotlib.use('wx')
 import matplotlib.pyplot as plt
 import numbers
 import numpy as np

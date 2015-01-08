@@ -33,8 +33,6 @@ Currently the following dependencies are needed.
 
 - PyQt
 
-- wxpython
-
 
 Background Info
 ===============

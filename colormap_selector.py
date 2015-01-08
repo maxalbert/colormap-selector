@@ -1,8 +1,8 @@
 import sys
 import matplotlib
-matplotlib.use('wx')  # need a backend != PyQt to avoid conflicts with this GUI
+matplotlib.use('Qt4Agg')
 from PyQt4 import QtGui
-from helpers import ColormapSelector
+from cross_section_display import ColormapSelector
 from sample_plots import sample_scatterplot
 
 sample_plot_functions = [sample_scatterplot]
