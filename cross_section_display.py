@@ -32,18 +32,18 @@ class CrossSectionDisplay2D(object):
         self.view = self.canvas.central_widget.add_view()
         self.view.camera.rect = (-110, -140), (230, 230)
         self.cross_section = cross_section
-        self.cs_mesh = Mesh(vertices=self.cross_section.vertices_2d,
-                            faces=self.cross_section.faces,
-                            vertex_colors=self.cross_section.vertex_colors)
+        self.cs_mesh = Mesh()
         self.view.add(self.cs_mesh)
+        self.redraw()
 
     def add_to_widget(self, parent_widget):
         self.parent_widget = parent_widget
         self.parent_widget.addWidget(self.canvas.native)
 
     def redraw(self):
-        cs = self.cross_section
-        self.cs_mesh.set_data(vertices=cs.vertices_2d, faces=cs.faces, vertex_colors=cs.vertex_colors)
+        self.cs_mesh.set_data(vertices=self.cross_section.vertices_2d,
+                              faces=self.cross_section.faces,
+                              vertex_colors=self.cross_section.vertex_colors)
 
     def set_L(self, L):
         self.cross_section.L = L
