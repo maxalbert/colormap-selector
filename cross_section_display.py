@@ -2,7 +2,28 @@ from PyQt4 import QtGui, QtCore
 from vispy import scene
 from vispy.scene.visuals import Mesh, Line, Markers
 from color_transformations import lab2rgb, lab2rgba
+from cross_section import CrossSectionL
 import numpy as np
+
+
+class SliderWithLabel(QtGui.QWidget):
+    def __init__(self, label, *args, **kwargs):
+        QtGui.QWidget.__init__(self, *args, **kwargs)
+        self.slider = QtGui.QSlider()
+        self.slider.setOrientation(QtCore.Qt.Horizontal)
+        self.slider.setRange(1, 99)
+        self.slider.setSingleStep(1)
+        self.slider.setPageStep(10)
+        self.label = QtGui.QLabel(self)
+        self.label.setText(label)
+        # QVBoxLayout the label above; could use QHBoxLayout for
+        # side-by-side
+        layout = QtGui.QHBoxLayout()
+        layout.setMargin(0)
+        layout.setSpacing(2)
+        layout.addWidget(self.label)
+        layout.addWidget(self.slider)
+        self.setLayout(layout)
 
 
 class CrossSectionDisplay2D(object):
@@ -23,6 +44,22 @@ class CrossSectionDisplay2D(object):
     def redraw(self):
         cs = self.cross_section
         self.cs_mesh.set_data(vertices=cs.vertices_2d, faces=cs.faces, vertex_colors=cs.vertex_colors)
+
+    def set_L(self, L):
+        self.cross_section.L = L
+
+class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
+    def __init__(self, L):
+        cs = CrossSectionL(L)
+        super(CrossSectionDisplay2DConstL, self).__init__(cs)
+        self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.slider = SliderWithLabel("L=")
+        self.splitter_v.addWidget(self.canvas.native)
+        self.splitter_v.addWidget(self.slider)
+
+    def add_to_widget(self, parent_widget):
+        self.parent_widget = parent_widget
+        self.parent_widget.addWidget(self.splitter_v)
 
 
 class ColoredLine3D(object):

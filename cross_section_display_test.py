@@ -37,6 +37,23 @@ def test_init_cross_section_display_2d():
     appQt.exec_()
 
 
+def test_init_cross_section_display_2d_const_L():
+    appQt = QtGui.QApplication(sys.argv)
+
+    csd = CrossSectionDisplay2DConstL(L=10)
+
+    win = MainWindow(csd)
+    win.show()
+
+    # Here we change L *after* the cross section has been added to the
+    # CrossSectionDisplay. This is to check that redraw() takes this
+    # change into account.
+    csd.set_L(40)
+    csd.redraw()
+
+    appQt.exec_()
+
+
 def test_init_cross_section_display_3d():
     appQt = QtGui.QApplication(sys.argv)
 
@@ -67,5 +84,6 @@ def test_init_cross_section_display_3d():
 
 
 if __name__ == '__main__':
-    test_init_cross_section_display_2d()
+    #test_init_cross_section_display_2d()
+    test_init_cross_section_display_2d_const_L()
     #test_init_cross_section_display_3d()
