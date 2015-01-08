@@ -7,7 +7,7 @@ import numpy as np
 
 
 class SliderWithLabel(QtGui.QWidget):
-    def __init__(self, label, *args, **kwargs):
+    def __init__(self, label="", *args, **kwargs):
         QtGui.QWidget.__init__(self, *args, **kwargs)
         self.slider = QtGui.QSlider()
         self.slider.setOrientation(QtCore.Qt.Horizontal)
@@ -16,8 +16,6 @@ class SliderWithLabel(QtGui.QWidget):
         self.slider.setPageStep(10)
         self.label = QtGui.QLabel(self)
         self.label.setText(label)
-        # QVBoxLayout the label above; could use QHBoxLayout for
-        # side-by-side
         layout = QtGui.QHBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(2)
@@ -53,14 +51,20 @@ class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
         cs = CrossSectionL(L)
         super(CrossSectionDisplay2DConstL, self).__init__(cs)
         self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.slider = SliderWithLabel("L=")
+        self.sliderlabel = SliderWithLabel()
         self.splitter_v.addWidget(self.canvas.native)
-        self.splitter_v.addWidget(self.slider)
+        self.splitter_v.addWidget(self.sliderlabel)
+        self.sliderlabel.slider.valueChanged.connect(self.set_L)
 
     def add_to_widget(self, parent_widget):
         self.parent_widget = parent_widget
         self.parent_widget.addWidget(self.splitter_v)
 
+    def set_L(self, L):
+        self.cross_section.L = L
+        self.sliderlabel.slider.setValue(L)
+        self.sliderlabel.label.setText("L={}".format(L))
+        self.redraw()
 
 class ColoredLine3D(object):
     def __init__(self, parent):
