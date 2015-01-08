@@ -82,6 +82,7 @@ class Mapping3Dto2D(object):
 
         if orig_ndim == 1:
             pts_2d.shape = (2,)
+            pts_3d.shape = (3,)
 
         return pts_2d
 
@@ -107,5 +108,6 @@ class Mapping3Dto2D(object):
 
         if orig_ndim == 1:
             pts_3d.shape = (3,)
+            pts_2d.shape = (2,)
 
         return pts_3d

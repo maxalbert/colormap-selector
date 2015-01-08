@@ -22,6 +22,15 @@ def test_initialise_mapping_3d_to_2d_simple():
     assert f1.apply_inv([[-1, 4]]).ndim == 2
     assert np.allclose(f1.apply_inv([[-1, 4], [3, 7]]), [[50, -1, 4], [50, 3, 7]])
 
+    # Regression test: check that applying the transformation does not
+    # change the shape/dimension of the input array.
+    pt1 = np.array([2., 6., 4.])
+    pt2 = np.array([[2., 6., 4.]])
+    _ = f1.apply(pt1)
+    _ = f1.apply(pt2)
+    assert pt1.shape == (3,)
+    assert pt2.shape == (1, 3)
+
     plane2 = Plane([0, 30, 0], n=[0, 1, 0])
     f2 = Mapping3Dto2D(plane2)
 
@@ -32,3 +41,12 @@ def test_initialise_mapping_3d_to_2d_simple():
     # Check the 2d -> 3d transformation
     assert np.allclose(f2.apply_inv([-1, 4]), [-1, 30, 4])
     assert np.allclose(f2.apply_inv([3, 7]), [3, 30, 7])
+
+    # Regression test: check that applying the inverse transformation
+    # does not change the shape/dimension of the input array.
+    pt1 = np.array([2., 6.])
+    pt2 = np.array([[2., 6.]])
+    _ = f1.apply_inv(pt1)
+    _ = f1.apply_inv(pt2)
+    assert pt1.shape == (2,)
+    assert pt2.shape == (1, 2)
