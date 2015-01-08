@@ -93,3 +93,12 @@ A random (and highly incomplete) selection of articles on color, colormaps and s
 
 - Why Should Engineers and Scientists Be Worried About Color?
   http://www.research.ibm.com/people/l/lloydt/color/color.HTM
+
+
+Known Bugs
+==========
+
+The currently selected color in each of the 2D plots on the left
+should be indicated by a white dot. Sometimes these color indicators
+are not visible because the dot is drawn underneath the cross section.
+This is due to a known bug in Vispy (see: https://groups.google.com/forum/#!topic/vispy/z8b-Wglo3j0)
