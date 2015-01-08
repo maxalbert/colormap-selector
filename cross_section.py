@@ -56,6 +56,15 @@ class Plane(object):
         self.n = np.asarray(n, dtype=float)
         self.n /= np.linalg.norm(n)
 
+    def contains_point(self, P, TOL=1e-8):
+        """
+        Return `True` if the point `P` lies on the plane (up to the
+        given tolerance), otherwise `False`.
+
+        """
+        P = np.asarray(P, dtype=float)
+        return abs(np.dot(P - self.pt, self.n)) < TOL
+
     def same_side(self, P1, P2):
         """
         Return `True` if the points `P1` and `P2` lie on the same side

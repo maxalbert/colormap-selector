@@ -40,8 +40,7 @@ class CrossSectionDisplay2D(object):
 
         self.color_label_prefix = color_label_prefix
         self.selected_color = self.cross_section.plane.pt
-        self.color_indicator = Markers()
-        self.view.add(self.color_indicator)
+        self.color_indicator = None
 
         self.cs_mesh = Mesh()
         self.view.add(self.cs_mesh)
@@ -61,11 +60,11 @@ class CrossSectionDisplay2D(object):
         self.parent_widget.addWidget(self.splitter_v)
 
     def redraw(self):
-        self.update_color_value_label()
-        self.update_color_indicator()
         self.cs_mesh.set_data(vertices=self.cross_section.vertices_2d,
                               faces=self.cross_section.faces,
                               vertex_colors=self.cross_section.vertex_colors)
+        self.update_color_value_label()
+        self.update_color_indicator()
 
     def set_L(self, L):
         self.cross_section.L = L
@@ -124,9 +123,16 @@ class CrossSectionDisplay2D(object):
                 f(event)
 
     def update_color_indicator(self):
+        if self.color_indicator != None:
+            self.color_indicator.remove_parent(self.view.scene)
+            self.color_indicator = None
+
         if self.selected_color is not None:
-            pos = self.cross_section.mapping_3d_to_2d.apply(self.selected_color)
-            self.color_indicator.set_data(pos=pos.reshape(1, 2))
+            if self.cross_section.plane.contains_point(self.selected_color):
+                pos = self.cross_section.mapping_3d_to_2d.apply(self.selected_color)
+                self.color_indicator = Markers()
+                self.color_indicator.set_data(pos=pos.reshape(1, 2))
+                self.view.add(self.color_indicator)
 
 
 class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
