@@ -182,7 +182,7 @@ class CrossSectionDisplay3D(object):
         self.parent_widget.addWidget(self.canvas.native)
 
     def add_cross_section(self, cs):
-        vertex_colors = cs.vertex_colors
+        vertex_colors = cs.vertex_colors.copy()
         vertex_colors[:, 3] = 0.7  # smaller alpha value for slight transparency
         mesh = Mesh(vertices=cs.vertices_3d, faces=cs.faces, vertex_colors=vertex_colors)
         self.view.add(mesh)
@@ -192,7 +192,7 @@ class CrossSectionDisplay3D(object):
         self.draw_boxed_coordinate_axes()
 
         for cs, mesh in self.cs_meshes.iteritems():
-            vertex_colors = cs.vertex_colors
+            vertex_colors = cs.vertex_colors.copy()
             vertex_colors[:, 3] = 0.7  # smaller alpha value for slight transparency
             mesh.set_data(vertices=cs.vertices_3d, faces=cs.faces, vertex_colors=vertex_colors)
 
