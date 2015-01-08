@@ -31,6 +31,7 @@ class CrossSectionDisplay2D(object):
         self.view = self.canvas.central_widget.add_view()
         self.view.camera.rect = (-110, -140), (230, 230)
         self.view.on_mouse_press = self.on_mouse_press
+        self.callbacks_right_click = []
 
         self.cross_section = cross_section
 
@@ -48,6 +49,9 @@ class CrossSectionDisplay2D(object):
         self.splitter_v.addWidget(self.color_value_label)
 
         self.redraw()
+
+    def add_callback_right_click(self, f):
+        self.callbacks_right_click.append(f)
 
     def add_to_widget(self, parent_widget):
         self.parent_widget = parent_widget
@@ -113,6 +117,9 @@ class CrossSectionDisplay2D(object):
             self.selected_color = pt_lab
             self.redraw()
 
+            for f in self.callbacks_right_click:
+                f(event)
+
     def update_color_indicator(self):
         if self.selected_color is not None:
             pos = self.cross_section.mapping_3d_to_2d.apply(self.selected_color)
@@ -144,6 +151,9 @@ class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
         self.sliderlabel.slider.setValue(L)
         self.sliderlabel.label.setText("L={}".format(L))
         self.redraw()
+
+    def add_callback_slider_value_changed(self, f):
+        self.sliderlabel.slider.valueChanged.connect(f)
 
 
 class ColoredLine3D(object):
@@ -209,8 +219,9 @@ class CrossSectionDisplay3D(object):
 
     def draw_colored_line(self, N_markers=5):
         """
-        Draw a colored line connecting the start and end color. The argument `N`
-        specifies how many intermediate colored points to draw.
+        Draw a colored line connecting the start and end color.
+        The argument `N` specifies how many intermediate colored
+        points to draw.
         """
         if self.start_color is None or self.end_color is None:
             return
@@ -255,7 +266,6 @@ class ColormapSelector(QtGui.QMainWindow):
         cs1 = CrossSectionL(40)
         cs2 = CrossSectionL(90)
 
-        # Central Widget
         self.splitter_h = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.setCentralWidget(self.splitter_h)
         self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
@@ -269,8 +279,22 @@ class ColormapSelector(QtGui.QMainWindow):
         self.cs_display_3d = CrossSectionDisplay3D()
         self.cs_display_3d.add_cross_section(cs1)
         self.cs_display_3d.add_cross_section(cs2)
+        self.cs_display_3d.start_color = self.cs_display_2d_L1.selected_color
+        self.cs_display_3d.end_color = self.cs_display_2d_L2.selected_color
         self.cs_display_3d.add_to_widget(self.splitter_h)
+        self.cs_display_3d.redraw()
+
+        self.cs_display_2d_L1.add_callback_right_click(self.set_start_color)
+        self.cs_display_2d_L2.add_callback_right_click(self.set_end_color)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
             self.close()
+
+    def set_start_color(self, event):
+        self.cs_display_3d.start_color = self.cs_display_2d_L1.selected_color
+        self.cs_display_3d.redraw()
+
+    def set_end_color(self, event):
+        self.cs_display_3d.end_color = self.cs_display_2d_L2.selected_color
+        self.cs_display_3d.redraw()
