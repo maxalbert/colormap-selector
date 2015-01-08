@@ -3,6 +3,7 @@ from vispy import scene
 from vispy.scene.visuals import Mesh, Line, Markers
 from color_transformations import lab2rgb, lab2rgba, RGBRangeError
 from cross_section import CrossSectionL
+import numbers
 import numpy as np
 
 
@@ -119,11 +120,19 @@ class CrossSectionDisplay2D(object):
 
 
 class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
-    def __init__(self, L, color_label_prefix=""):
-        cs = CrossSectionL(L)
+    def __init__(self, arg, color_label_prefix=""):
+        if isinstance(arg, CrossSectionL):
+            cs = arg
+        elif isinstance(arg, numbers.Number):
+            cs = CrossSectionL(L=arg)
+        else:
+            raise TypeError("CrossSectionDisplay2DConstL must be initialised "
+                            "with a number or an object of type CrossSectionL. "
+                            "Got: {} (type: {}).".format(arg, type(arg)))
         super(CrossSectionDisplay2DConstL, self).__init__(cs, color_label_prefix)
         self.sliderlabel = SliderWithLabel()
         self.splitter_v.addWidget(self.sliderlabel)
+        self.set_L(cs.L)
         self.sliderlabel.slider.valueChanged.connect(self.set_L)
 
     def add_to_widget(self, parent_widget):
@@ -234,3 +243,34 @@ class CrossSectionDisplay3D(object):
         self.view.add(Line(pos=box_x, color='red', connect='segments', width=1))
         self.view.add(Line(pos=box_y, color='green', connect='segments', width=1))
         self.view.add(Line(pos=box_z, color='blue', connect='segments', width=1))
+
+
+class ColormapSelector(QtGui.QMainWindow):
+    def __init__(self):
+        QtGui.QMainWindow.__init__(self)
+
+        self.resize(700, 500)
+        self.setWindowTitle('Colormap Selector')
+
+        cs1 = CrossSectionL(40)
+        cs2 = CrossSectionL(90)
+
+        # Central Widget
+        self.splitter_h = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.setCentralWidget(self.splitter_h)
+        self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.splitter_h.addWidget(self.splitter_v)
+
+        self.cs_display_2d_L1 = CrossSectionDisplay2DConstL(cs1, "Start color:  ")
+        self.cs_display_2d_L2 = CrossSectionDisplay2DConstL(cs2, "End color:    ")
+        self.cs_display_2d_L1.add_to_widget(self.splitter_v)
+        self.cs_display_2d_L2.add_to_widget(self.splitter_v)
+
+        self.cs_display_3d = CrossSectionDisplay3D()
+        self.cs_display_3d.add_cross_section(cs1)
+        self.cs_display_3d.add_cross_section(cs2)
+        self.cs_display_3d.add_to_widget(self.splitter_h)
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            self.close()

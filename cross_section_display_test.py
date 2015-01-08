@@ -22,7 +22,7 @@ class MainWindow(QtGui.QMainWindow):
 def test_init_cross_section_display_2d():
     appQt = QtGui.QApplication(sys.argv)
 
-    cs = CrossSectionL(L=10)
+    cs = CrossSectionL(10)
     csd = CrossSectionDisplay2D(cs)
 
     win = MainWindow(csd)
@@ -40,7 +40,7 @@ def test_init_cross_section_display_2d():
 def test_init_cross_section_display_2d_const_L():
     appQt = QtGui.QApplication(sys.argv)
 
-    csd = CrossSectionDisplay2DConstL(L=10, color_label_prefix="Selected color: ")
+    csd = CrossSectionDisplay2DConstL(10, color_label_prefix="Selected color: ")
 
     win = MainWindow(csd)
     win.show()
@@ -55,12 +55,19 @@ def test_init_cross_section_display_2d_const_L():
     appQt.exec_()
 
 
+def test_colormap_selector_GUI():
+    appQt = QtGui.QApplication(sys.argv)
+    win = ColormapSelector()
+    win.show()
+    appQt.exec_()
+
+
 def test_init_cross_section_display_3d():
     appQt = QtGui.QApplication(sys.argv)
 
-    cs1 = CrossSectionL(L=10)
-    cs2 = CrossSectionL(L=60)
-    cs3 = CrossSectionL(L=80)
+    cs1 = CrossSectionL(10)
+    cs2 = CrossSectionL(60)
+    cs3 = CrossSectionL(80)
     cs4 = CrossSection(Plane(P=[50, 0, 0], n=[2, 4, -3]))
 
     csd = CrossSectionDisplay3D()
@@ -86,5 +93,6 @@ def test_init_cross_section_display_3d():
 
 if __name__ == '__main__':
     #test_init_cross_section_display_2d()
-    test_init_cross_section_display_2d_const_L()
+    #test_init_cross_section_display_2d_const_L()
     #test_init_cross_section_display_3d()
+    test_colormap_selector_GUI()
