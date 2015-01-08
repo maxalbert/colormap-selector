@@ -53,11 +53,11 @@ class CrossSectionDisplay2D(object):
         self.parent_widget.addWidget(self.splitter_v)
 
     def redraw(self):
+        self.update_color_value_label()
+        self.update_color_indicator()
         self.cs_mesh.set_data(vertices=self.cross_section.vertices_2d,
                               faces=self.cross_section.faces,
                               vertex_colors=self.cross_section.vertex_colors)
-        self.update_color_value_label()
-        self.update_color_indicator()
 
     def set_L(self, L):
         self.cross_section.L = L
