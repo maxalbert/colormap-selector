@@ -31,17 +31,21 @@ class CrossSectionDisplay2D(object):
         self.view.camera.rect = (-110, -140), (230, 230)
         self.view.on_mouse_press = self.on_mouse_press
 
+        self.cross_section = cross_section
+
         self.color_label_prefix = color_label_prefix
-        self.selected_color = None
+        self.selected_color = self.cross_section.plane.pt
+        self.color_indicator = Markers()
+        self.view.add(self.color_indicator)
+
+        self.cs_mesh = Mesh()
+        self.view.add(self.cs_mesh)
 
         self.color_value_label = QtGui.QLabel()
         self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.splitter_v.addWidget(self.canvas.native)
         self.splitter_v.addWidget(self.color_value_label)
 
-        self.cross_section = cross_section
-        self.cs_mesh = Mesh()
-        self.view.add(self.cs_mesh)
         self.redraw()
 
     def add_to_widget(self, parent_widget):
@@ -53,22 +57,22 @@ class CrossSectionDisplay2D(object):
                               faces=self.cross_section.faces,
                               vertex_colors=self.cross_section.vertex_colors)
         self.update_color_value_label()
+        self.update_color_indicator()
 
     def set_L(self, L):
         self.cross_section.L = L
 
     def update_color_value_label(self):
-        if self.selected_color is None:
-            label_text = ""
-        else:
-            val_lab = self.selected_color
-            val_rgb = lab2rgb(self.selected_color)
-            label_text = "L,a,b = {}  R,G,B = {}".format(
-                "({:.0f}, {:.0f}, {:.0f})".format(val_lab[0], val_lab[1], val_lab[2]),
-                "({:.1f}, {:.1f}, {:.1f})".format(val_rgb[0], val_rgb[1], val_rgb[2]))
+        assert self.selected_color != None
+
+        val_lab = self.selected_color
+        val_rgb = lab2rgb(self.selected_color)
 
         self.color_value_label.setText(
-            "{}{}".format(self.color_label_prefix, label_text))
+            "{}L,a,b = {}  R,G,B = {}".format(
+                self.color_label_prefix,
+                "({:.0f}, {:.0f}, {:.0f})".format(val_lab[0], val_lab[1], val_lab[2]),
+                "({:.1f}, {:.1f}, {:.1f})".format(val_rgb[0], val_rgb[1], val_rgb[2])))
 
     def transform_event_to_color_coordinates(self, pos):
         # Event position (where the mouse click occurred, relative to the sub-plot window)
@@ -107,6 +111,11 @@ class CrossSectionDisplay2D(object):
 
             self.selected_color = pt_lab
             self.redraw()
+
+    def update_color_indicator(self):
+        if self.selected_color is not None:
+            pos = self.cross_section.mapping_3d_to_2d.apply(self.selected_color)
+            self.color_indicator.set_data(pos=pos.reshape(1, 2))
 
 
 class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
