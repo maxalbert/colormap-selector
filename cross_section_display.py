@@ -286,6 +286,8 @@ class ColormapSelector(QtGui.QMainWindow):
 
         self.cs_display_2d_L1.add_callback_right_click(self.set_start_color)
         self.cs_display_2d_L2.add_callback_right_click(self.set_end_color)
+        self.cs_display_2d_L1.add_callback_slider_value_changed(self.cs_display_3d.redraw)
+        self.cs_display_2d_L2.add_callback_slider_value_changed(self.cs_display_3d.redraw)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
