@@ -25,10 +25,19 @@ class SliderWithLabel(QtGui.QWidget):
 
 
 class CrossSectionDisplay2D(object):
-    def __init__(self, cross_section):
+    def __init__(self, cross_section, color_label_prefix=""):
         self.canvas = scene.SceneCanvas(keys='interactive', bgcolor='white')
         self.view = self.canvas.central_widget.add_view()
         self.view.camera.rect = (-110, -140), (230, 230)
+
+        self.color_label_prefix = color_label_prefix
+        self.selected_color = None
+
+        self.color_value_label = QtGui.QLabel()
+        self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.splitter_v.addWidget(self.canvas.native)
+        self.splitter_v.addWidget(self.color_value_label)
+
         self.cross_section = cross_section
         self.cs_mesh = Mesh()
         self.view.add(self.cs_mesh)
@@ -36,23 +45,36 @@ class CrossSectionDisplay2D(object):
 
     def add_to_widget(self, parent_widget):
         self.parent_widget = parent_widget
-        self.parent_widget.addWidget(self.canvas.native)
+        self.parent_widget.addWidget(self.splitter_v)
 
     def redraw(self):
         self.cs_mesh.set_data(vertices=self.cross_section.vertices_2d,
                               faces=self.cross_section.faces,
                               vertex_colors=self.cross_section.vertex_colors)
+        self.update_color_value_label()
 
     def set_L(self, L):
         self.cross_section.L = L
 
+    def update_color_value_label(self):
+        if self.selected_color is None:
+            label_text = ""
+        else:
+            val_lab = self.selected_color
+            val_rgb = lab2rgb(self.selected_color)
+            label_text = "L,a,b = {}  R,G,B = {}".format(
+                "({:.0f}, {:.0f}, {:.0f})".format(val_lab[0], val_lab[1], val_lab[2]),
+                "({:.1f}, {:.1f}, {:.1f})".format(val_rgb[0], val_rgb[1], val_rgb[2]))
+
+        self.color_value_label.setText(
+            "{}{}".format(self.color_label_prefix, label_text))
+
+
 class CrossSectionDisplay2DConstL(CrossSectionDisplay2D):
-    def __init__(self, L):
+    def __init__(self, L, color_label_prefix=""):
         cs = CrossSectionL(L)
-        super(CrossSectionDisplay2DConstL, self).__init__(cs)
-        self.splitter_v = QtGui.QSplitter(QtCore.Qt.Vertical)
+        super(CrossSectionDisplay2DConstL, self).__init__(cs, color_label_prefix)
         self.sliderlabel = SliderWithLabel()
-        self.splitter_v.addWidget(self.canvas.native)
         self.splitter_v.addWidget(self.sliderlabel)
         self.sliderlabel.slider.valueChanged.connect(self.set_L)
 

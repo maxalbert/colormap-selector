@@ -40,7 +40,7 @@ def test_init_cross_section_display_2d():
 def test_init_cross_section_display_2d_const_L():
     appQt = QtGui.QApplication(sys.argv)
 
-    csd = CrossSectionDisplay2DConstL(L=10)
+    csd = CrossSectionDisplay2DConstL(L=10, color_label_prefix="Selected color: ")
 
     win = MainWindow(csd)
     win.show()
@@ -49,6 +49,7 @@ def test_init_cross_section_display_2d_const_L():
     # CrossSectionDisplay. This is to check that redraw() takes this
     # change into account.
     csd.set_L(40)
+    csd.selected_color = [40, 10, 10]
     csd.redraw()
 
     appQt.exec_()
