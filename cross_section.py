@@ -47,12 +47,12 @@ def compute_intersection_of_image_curve_with_plane(P1, P2, plane, fun=rgb2lab, T
 
 
 class Plane(object):
-    def __init__(self, P, n):
+    def __init__(self, pt, n):
         """
-        Initialise plane from an incident point `P` and a normal vector `n`.
+        Initialise plane from an incident point `pt` and a normal vector `n`.
 
         """
-        self.pt = np.asarray(P, dtype=float)
+        self.pt = np.asarray(pt, dtype=float)
         self.n = np.asarray(n, dtype=float)
         self.n /= np.linalg.norm(n)
 
