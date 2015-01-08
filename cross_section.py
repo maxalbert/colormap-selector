@@ -153,7 +153,7 @@ class CrossSection(object):
         # Compute vertex colors (RGBA)
         self.vertex_colors = np.empty((len(self.vertices_3d), 4))
         self.vertex_colors[:, 0:3] = np.array([lab2rgb(pt) for pt in self.vertices_3d])
-        self.vertex_colors[:, 3] = 0.7  # alpha value != 1 for slight transparency
+        self.vertex_colors[:, 3] = 1.0  # set alpha value to 1.0 (no transparency)
 
 
 class CrossSectionL(CrossSection):
