@@ -4,7 +4,7 @@ import numpy as np
 from PyQt4 import QtGui, QtCore
 from vispy import scene
 from vispy.scene.visuals import Mesh, Line, Markers
-from color_transformations import lab2rgb, lab2rgba, RGBRangeError, linear_colormap
+from color_transformations_skimage import lab2rgb, lab2rgba, RGBRangeError, linear_colormap
 from cross_section import CrossSectionL
 
 

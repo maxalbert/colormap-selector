@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
 from scipy.spatial import Delaunay
-from color_transformations import rgb2lab, lab2rgb
+from color_transformations_skimage import rgb2lab, lab2rgb
 from mapping_3d_to_2d import Mapping3Dto2D
 
 
